@@ -6,7 +6,7 @@ from langgraph.prebuilt import ToolNode
 from datetime import datetime
 
 # Importamos las herramientas que creamos en el paso anterior
-from tools import (
+from agent.tools import (
     consultar_inventario,
     buscar_cliente,
     consultar_tabla_bd,
@@ -27,7 +27,7 @@ tools = tools_clientes + tools_inventario + [consultar_tabla_bd]
 
 # usamos este modelo de Google Gemini, que es un modelo de propósito general muy capaz para agentes conversacionales 
 # y que es rápido y económico. 
-llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.5)
+llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0.5)
 
 # "Conectamos" las herramientas al modelo. 
 llm_with_tools = llm.bind_tools(tools, parallel_tool_calls=False)
