@@ -1,60 +1,140 @@
 import uuid
-from dotenv import load_dotenv
-from langchain_core.messages import HumanMessage
 import os
-
+import sys
+import time
+import threading
+from datetime import datetime
+from dotenv import load_dotenv
 load_dotenv()
-
+from langchain_core.messages import HumanMessage
 from agent.agent import graph
 
+
+
+# ==========================================
+# Configuración de Archivos y Logs
+# ==========================================
+CHATS_DIR = "chats"
+os.makedirs(CHATS_DIR, exist_ok=True)
+
+def guardar_en_log(session_id, texto):
+    """Escribe eventos en el archivo .txt de la sesión"""
+    timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
+    filename = os.path.join(CHATS_DIR, f"chat_{session_id}.txt")
+    with open(filename, "a", encoding="utf-8") as f:
+        f.write(f"{timestamp} {texto}\n")
+
+# ==========================================
+# Estética de Terminal (Animación)
+# ==========================================
+class AnimacionPensando:
+    def __init__(self):
+        self.ejecutando = False
+        self.hilo = None
+
+    def _animar(self):
+        # Ciclo de puntos suspensivos
+        for char in [" .  ", " .. ", " ...", "    "]:
+            if not self.ejecutando:
+                break
+            sys.stdout.write(f"\rPensando{char}")
+            sys.stdout.flush()
+            time.sleep(0.1)
+
+    def iniciar(self):
+        self.ejecutando = True
+        self.hilo = threading.Thread(target=self._animar)
+        self.hilo.start()
+
+    def detener(self):
+        self.ejecutando = False
+        if self.hilo:
+            self.hilo.join()
+        sys.stdout.write("\r" + " " * 20 + "\r") # Limpia la línea de "Pensando..."
+        sys.stdout.flush()
+
+# ==========================================
+# Lógica Principal del Chat
+# ==========================================
 def chat_interactivo():
-    print("="*50)
-    print("Hola, soy tu asistente virtual. Puedes hacerme preguntas o solicitar información de las ventas o contactos.\n")
-    print("Escribe 'salir' o 'quit' para terminar la conversación.")
-    print("="*50)
+    print("\n" + "="*60)
+    print("AGENTE INTERACTIVO DE VENTAS")
+    print("="*60)
+    print("Escribe 'salir' para terminar.")
     
-    # Cada vez que iniciamos una nueva conversación, generamos un nuevo thread_id para mantener el contexto separado
-    config = {"configurable": {"thread_id": str(uuid.uuid4())}}
+    thread_id = str(uuid.uuid4())
+    config = {"configurable": {"thread_id": thread_id}}
+    animacion = AnimacionPensando()
     
+    guardar_en_log(thread_id, f"--- SESIÓN INICIADA: {thread_id} ---")
+
     while True:
-        print(f"\n--- Historial de la conversación (ID: {config['configurable']['thread_id']}) ---")
-        user_input = input("\nTú: ")
-        # para salir del chat
-        if user_input.lower() in ['salir', 'quit', 'exit']:
-            print("¡Hasta luego!")
-            break
-        # Si el usuario no ingresa nada, simplemente continuamos esperando su input
-        if not user_input.strip():
-            continue
-        # Creamos un mensaje de tipo HumanMessage con el input del usuario
-        mensaje = HumanMessage(content=user_input)
-        print("\nPensando...\n")
-        # usamos .stream() en lugar de .invoke() para ver el proceso paso a paso
-        # esto nos permite ver cómo el flujo salta entre el 'agent' y las 'tools'
         try:
-            for event in graph.stream({"messages": [mensaje]}, config, stream_mode="updates"):
+            user_input = input("\n👤 Tú: ")
+            
+            if user_input.lower() in ['salir', 'quit', 'exit']:
+                print("\nEncantado de ayudarte. ¡Hasta pronto!")
+                guardar_en_log(thread_id, "--- SESIÓN FINALIZADA POR EL USUARIO ---")
+                break
+            
+            if not user_input.strip():
+                continue
+
+            guardar_en_log(thread_id, f"USUARIO: {user_input}")
+            
+            # Iniciamos animación y proceso del grafo
+            animacion.iniciar()
+            
+            mensajes_recibidos = [HumanMessage(content=user_input)]
+            
+            # Procesamos el stream
+            # Guardamos todo el rastro técnico en el log, pero solo la respuesta final en terminal
+            respuesta_agente = ""
+            
+            for event in graph.stream({"messages": mensajes_recibidos}, config, stream_mode="updates"):
                 for node_name, node_state in event.items():
-                    print(f"--- [Nodo ejecutado: {node_name}] ---")
-                    # obtenemos el último mensaje
-                    ultimo_mensaje = node_state["messages"][-1]
-                    # si estamos en el nodo del agente y se han llamado herramientas
-                    if node_name == "agent" and hasattr(ultimo_mensaje, "tool_calls") and ultimo_mensaje.tool_calls:
-                        for tool_call in ultimo_mensaje.tool_calls:
-                            print(f"Herramienta solicitada: {tool_call['name']}")
-                            print(f"Argumentos: {tool_call['args']}")
-                    # si estamos en el nodo del agente y el mensaje es lo último
-                    elif node_name == "agent" and ultimo_mensaje.content:
-                        print(f"\nAgente: {ultimo_mensaje.content}\n")
-                    # si el nodo está en las herramientas y el mensaje es lo último, mostramos el resultado de la herramienta
-                    elif node_name == "tools":
-                        print(f"Resultado de la herramienta: {ultimo_mensaje.content[:150]}...\n")
+                    # Registro técnico en el archivo
+                    guardar_en_log(thread_id, f"[NODO: {node_name}]")
+                    
+                    ultimo_msg = node_state["messages"][-1]
+                    
+                    # Log de herramientas
+                    if hasattr(ultimo_msg, "tool_calls") and ultimo_msg.tool_calls:
+                        for tc in ultimo_msg.tool_calls:
+                            guardar_en_log(thread_id, f"LLAMADA TOOL: {tc['name']} con {tc['args']}")
+                    
+                    # Si el nodo es el agente y trae contenido, es la respuesta al usuario
+                    if node_name == "agent" and ultimo_msg.content:
+                        if isinstance(ultimo_msg.content, str):
+                            respuesta_agente = ultimo_msg.content
+                        elif isinstance(ultimo_msg.content, list):
+                            textos = []
+                            for part in ultimo_msg.content:
+                                if isinstance(part, dict) and "text" in part:
+                                    textos.append(part["text"])
+                                elif isinstance(part, str):
+                                    textos.append(part)
+                            respuesta_agente = "".join(textos)
+                    
+                    # Si es un nodo de herramientas, logueamos el resultado
+                    if "tools" in node_name:
+                        guardar_en_log(thread_id, f"RESULTADO TOOL: {ultimo_msg.content[:200]}...")
+
+            animacion.detener()
+            
+            # Mostrar solo la respuesta limpia
+            if respuesta_agente:
+                print(f"🤖 Agente: {respuesta_agente}")
+                guardar_en_log(thread_id, f"AGENTE: {respuesta_agente}")
 
         except Exception as e:
-            print(f"\nOcurrió un error en la ejecución: {e}")
+            animacion.detener()
+            error_msg = f"ERROR: {str(e)}"
+            print(f"\n❌ Ups, algo salió mal: {error_msg}")
+            guardar_en_log(thread_id, error_msg)
 
 if __name__ == "__main__":
     if not os.getenv("GOOGLE_API_KEY"):
-        print("⚠️  ADVERTENCIA: No se encontró GOOGLE_API_KEY en las variables de entorno.")
-        print("Por favor, configura tu archivo .env antes de continuar.")
+        print("Error: Configura GOOGLE_API_KEY en tu .env")
     else:
         chat_interactivo()

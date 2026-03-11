@@ -30,7 +30,7 @@ tools = tools_clientes + tools_inventario + [consultar_tabla_bd]
 llm = ChatGoogleGenerativeAI(model="gemini-3-flash-preview", temperature=0.5)
 
 # "Conectamos" las herramientas al modelo. 
-llm_with_tools = llm.bind_tools(tools, parallel_tool_calls=False)
+llm_with_tools = llm.bind_tools(tools)
 
 # ==========================================
 # Definición de los Nodos del Grafo

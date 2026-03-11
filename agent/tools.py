@@ -8,7 +8,7 @@ from langchain_core.tools import tool
 # Tool 1.
 # ==========================================
 @tool
-def consultar_inventario(db_path: str, categoria: str) -> str:
+def consultar_inventario(categoria: str) -> str:
     """
     Consulta la base de datos SQL local de la empresa para buscar productos.
     Útil para saber qué artículos están disponibles, su stock y precios.
@@ -16,7 +16,8 @@ def consultar_inventario(db_path: str, categoria: str) -> str:
         db_path (str): La ruta a la base de datos SQLite.
         categoria (str): La categoría del producto (ej. 'Electrónica', 'Oficina').
     """
-    
+    db_path = 'data/inventario.db'
+
     # valida que la base de datos exista
     if not os.path.exists(db_path):
         return "Error: La base de datos no existe. Por favor, ejecuta el script de configuración primero."
@@ -46,7 +47,7 @@ def consultar_inventario(db_path: str, categoria: str) -> str:
 # Tool 2.
 # ==========================================
 @tool
-def buscar_cliente(db_path: str, nombre: str) -> str:
+def buscar_cliente(nombre: str) -> str:
     """
     Busca la información de contacto de un cliente en el sistema CRM/SFA de la empresa.
     Útil para obtener el correo electrónico, teléfono o la empresa de un cliente.
@@ -60,6 +61,8 @@ def buscar_cliente(db_path: str, nombre: str) -> str:
         nombre (str): El nombre o apellido del cliente a buscar (ej. 'Ana', 'Carlos').
     """
     
+    db_path = 'data/inventario.db'
+
     if not os.path.exists(db_path):
         return "Error: La base de datos de clientes no está disponible."
         
@@ -94,7 +97,7 @@ def buscar_cliente(db_path: str, nombre: str) -> str:
 # ==========================================
 
 @tool
-def consultar_tabla_bd(db_path: str, tabla: str) -> str:
+def consultar_tabla_bd(tabla: str) -> str:
     """
     Consulta los registros generales de una tabla en la base de datos local.
     Útil cuando el usuario pide ver "todos los clientes", "todos los usuarios" o "todos los productos".
@@ -103,6 +106,8 @@ def consultar_tabla_bd(db_path: str, tabla: str) -> str:
         db_path (str): La ruta a la base de datos SQLite.
         tabla (str): El nombre de la tabla a consultar. DEBE ser exactamente 'clientes' o 'productos'.
     """
+
+    db_path = 'data/inventario.db'
     
     # Hay que tener mucho cuidado con las alucinaciones
     tablas_permitidas = ["clientes", "productos"]
@@ -150,7 +155,7 @@ def consultar_tabla_bd(db_path: str, tabla: str) -> str:
 # ==========================================
 
 @tool
-def obtener_contacto_cliente(db_path: str, nombre: str) -> str:
+def obtener_contacto_cliente(nombre: str) -> str:
     """
     Consulta los datos de contacto de un cliente específico en la base de datos.
     Útil para obtener rápidamente el contacto telefónico de un cliente.
@@ -159,6 +164,7 @@ def obtener_contacto_cliente(db_path: str, nombre: str) -> str:
         db_path (str): La ruta a la base de datos SQLite.
         nombre (str): El nombre completo del cliente (ej. 'Ana Pérez').
     """
+    db_path = 'data/inventario.db'
     
     if not os.path.exists(db_path):
         return "Error: La base de datos de clientes no está disponible."
@@ -186,7 +192,7 @@ def obtener_contacto_cliente(db_path: str, nombre: str) -> str:
 # ==========================================
 
 @tool
-def buscar_articulo(db_path: str, termino: str) -> str:
+def buscar_articulo(termino: str) -> str:
     """
     Busca un artículo específico en la base de datos de inventario.
     Útil para encontrar rápidamente el stock y precio de un producto específico.
@@ -195,7 +201,8 @@ def buscar_articulo(db_path: str, termino: str) -> str:
         db_path (str): La ruta a la base de datos SQLite.
         termino (str): El nombre o parte del nombre del artículo a buscar (ej. 'Laptop', 'Silla').
     """
-    
+    db_path = 'data/inventario.db'
+
     if not os.path.exists(db_path):
         return "Error: La base de datos no existe. Por favor, ejecuta el script de configuración primero."
     
