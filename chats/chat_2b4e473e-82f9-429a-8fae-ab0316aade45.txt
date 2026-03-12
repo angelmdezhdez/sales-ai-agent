@@ -1,0 +1,73 @@
+[2026-03-12 09:15:55] --- SESIÓN INICIADA: 2b4e473e-82f9-429a-8fae-ab0316aade45 ---
+[2026-03-12 09:16:28] USUARIO: Hola, ¿cómo estás?... Quisiera saber el precio de las laptops que tienen en stock, por favor.
+[2026-03-12 09:18:20] ERROR: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}
+[2026-03-12 09:19:29] USUARIO: Vaya, parece que estás muy ocupado. ¿Crees ue podrías darme el precio de las laptops en stock? También me gustaría saber la cantidad de stock.
+[2026-03-12 09:19:36] [NODO: agent]
+[2026-03-12 09:19:36] LLAMADA TOOL: buscar_articulo con {'termino': 'laptop'}
+[2026-03-12 09:19:36] [NODO: sql_tools]
+[2026-03-12 09:19:36] RESULTADO TOOL: Error al consultar la base de datos: no such column: Marca...
+[2026-03-12 09:19:42] [NODO: agent]
+[2026-03-12 09:19:42] LLAMADA TOOL: consultar_tabla_bd con {'tabla': 'productos'}
+[2026-03-12 09:19:42] [NODO: sql_tools]
+[2026-03-12 09:19:42] RESULTADO TOOL: --- Mostrando registros de la tabla 'productos' (Límite 50) ---
+- id: 1, nombre: Laptop, categoria: Electrónica, precio: 1200.0, stock: 14
+- id: 2, nombre: Laptop, categoria: Oficina, precio: 1200.0, ...
+[2026-03-12 09:19:46] [NODO: agent]
+[2026-03-12 09:19:46] AGENTE: Contamos con varios modelos de laptops en stock con diferentes precios y categorías. Aquí tienes el detalle:
+
+*   **Laptops de $1,200.00:**
+    *   Electrónica: 14 unidades
+    *   Oficina: 13 unidades
+    *   Hogar: 15 unidades
+*   **Laptops de $1,500.00:**
+    *   Electrónica: 12 unidades
+    *   Oficina: 11 unidades
+    *   Hogar: 12 unidades
+*   **Laptops de $1,600.00:**
+    *   Electrónica: 20 unidades
+    *   Oficina: 12 unidades
+    *   Hogar: 21 unidades
+*   **Laptops de $1,700.00:**
+    *   Electrónica: 14 unidades
+    *   Oficina: 18 unidades
+    *   Hogar: 16 unidades
+
+En total, disponemos de **188 laptops** en inventario. ¿Te gustaría que te ayude con algo más?
+[2026-03-12 09:21:29] USUARIO: ¿Puedes darme la misma información sobre los escritorios?
+[2026-03-12 09:22:18] [NODO: agent]
+[2026-03-12 09:22:18] LLAMADA TOOL: buscar_articulo con {'termino': 'escritorio'}
+[2026-03-12 09:22:18] [NODO: sql_tools]
+[2026-03-12 09:22:18] RESULTADO TOOL: Error al consultar la base de datos: no such column: Marca...
+[2026-03-12 09:22:20] [NODO: agent]
+[2026-03-12 09:22:20] LLAMADA TOOL: consultar_tabla_bd con {'tabla': 'productos'}
+[2026-03-12 09:22:20] [NODO: sql_tools]
+[2026-03-12 09:22:20] RESULTADO TOOL: --- Mostrando registros de la tabla 'productos' (Límite 50) ---
+- id: 1, nombre: Laptop, categoria: Electrónica, precio: 1200.0, stock: 14
+- id: 2, nombre: Laptop, categoria: Oficina, precio: 1200.0, ...
+[2026-03-12 09:22:24] [NODO: agent]
+[2026-03-12 09:22:24] AGENTE: Aquí tienes la información disponible sobre los escritorios en nuestro inventario, desglosada por categoría, precio y existencias:
+
+### **Escritorios por Categoría y Precio**
+
+| Categoría | Precio | Stock (Unidades) |
+| :--- | :--- | :--- |
+| **Oficina** | 200.0 | 16 |
+| | 250.0 | 23 |
+| | 300.0 | 13 |
+| | 350.0 | 16 |
+| **Hogar** | 200.0 | 25 |
+| | 250.0 | 16 |
+| | 300.0 | 25 |
+| | 350.0 | 19 |
+| **Electrónica** | 200.0 | 9 |
+| | 250.0 | 17 |
+| | 300.0 | 16 |
+| | 350.0 | 13 |
+
+¿Necesitas ayuda con algún modelo en específico o te gustaría consultar otro producto?
+[2026-03-12 09:23:11] USUARIO: Es todo, muchas gracias
+[2026-03-12 09:23:39] [NODO: agent]
+[2026-03-12 09:23:39] AGENTE: ¡De nada! Ha sido un placer ayudarte. Si necesitas cualquier otra cosa en el futuro, no dudes en consultarme. 
+
+¡Que tengas un excelente día!
+[2026-03-12 09:24:13] --- SESIÓN FINALIZADA POR EL USUARIO ---
